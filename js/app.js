@@ -6,16 +6,36 @@ var Enemy = function() {
 // Determine the enemy's initial position randomly
 Enemy.prototype.initialPosition = function() {
     this.x = 0;
-    this.y = Math.floor((Math.random() * (numStoneRows + 1)) + 1);
-    // Math.floor() rounds up number downwards, hence the use of numStoneRows + 1
+    var initialRow = numWaterRows + (Math.floor((Math.random() * (numStoneRows + 1)) + 1));
+    /* initialRow randomly provides us the row on which the enemy
+     * will be created. It takes into account the number of
+     * rows with water and the amount of rows with stones. It then calculates
+     * a number randomly between (0 + numWaterRows) and
+     * (0 + numWaterRows + numStoneRows).
+     */
+    this.y = initialRow * cellHeight;
+    // To get the exact y coordinate, we must multiply
+    // the initial row number with our cellHeight
+    this.speed = 0;
+    // Initial speed is equal to 0 and will be modified
+    // when the first position update runs.
 };
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
-    // You should multiply any movement by the dt parameter
-    // which will ensure the game runs at the same speed for
-    // all computers.
+    if (this.speed === 0) {
+        /* If speed variable has not yet been set (i.e. when
+         * the instance of the enemy just got created), set it
+         * by randomly picking an amount of column the enemy could
+         * "jump" every tick.
+         */
+        this.speed = (Math.floor((Math.random() * (numCols + 1)) + 1));
+        this.x += this.speed * dt;
+        // Use of dt to smoothen enemies movements
+    } else {
+        this.x += this.speed * dt;
+    };
 };
 
 // Draw the enemy on the screen, required method for game

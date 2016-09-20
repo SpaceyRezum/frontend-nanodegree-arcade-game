@@ -128,6 +128,15 @@ var Engine = (function(global) {
                 }
                 return amount_of_stone_rows;
             },
+            numWaterRows = function() {
+                var amount_of_water_rows = 0;
+                for (i = 0; i < rowImages.length; i++) {
+                    if (rowImages[i].includes("water") === true) {
+                        amount_of_water_rows++;
+                    }
+                }
+                return amount_of_water_rows;
+            },
             cellHeight = canvas.height % numRows,
             cellWidth = canvas.width % numCols,
             row, col;
