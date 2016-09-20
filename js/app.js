@@ -1,11 +1,13 @@
 // Enemies our player must avoid
 var Enemy = function() {
-    // Variables applied to each of our instances go here,
-    // we've provided one for you to get started
-
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
+};
+
+// Determine the enemy's initial position randomly
+Enemy.prototype.initialPosition = function() {
+    this.x = 0;
+    this.y = Math.floor((Math.random() * (numStoneRows + 1)) + 1);
+    // Math.floor() rounds up number downwards, hence the use of numStoneRows + 1
 };
 
 // Update the enemy's position, required method for game
