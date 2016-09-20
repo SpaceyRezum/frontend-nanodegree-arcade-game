@@ -119,6 +119,17 @@ var Engine = (function(global) {
             ],
             numRows = 6,
             numCols = 5,
+            numStoneRows = function() {
+                var amount_of_stone_rows = 0;
+                for (i = 0; i < rowImages.length; i++) {
+                    if (rowImages[i].includes("stone") === true) {
+                        amount_of_stone_rows++;
+                    }
+                }
+                return amount_of_stone_rows;
+            },
+            cellHeight = canvas.height % numRows,
+            cellWidth = canvas.width % numCols,
             row, col;
 
         /* Loop through the number of rows and columns we've defined above
@@ -134,7 +145,7 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                ctx.drawImage(Resources.get(rowImages[row]), col * (canvas.height % numRows), row * (canvas.width % numCols));
+                ctx.drawImage(Resources.get(rowImages[row]), col * cellHeight, row * cellWidth);
             }
         }
 
