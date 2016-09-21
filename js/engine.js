@@ -14,6 +14,8 @@
  * a little simpler to work with.
  */
 
+
+
 var Engine = (function(global) {
     /* Predefine the variables we'll be using within this scope,
      * create the canvas element, grab the 2D context for that canvas
@@ -28,6 +30,56 @@ var Engine = (function(global) {
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
+
+    // I decided to make the information about rows & colums
+    // globally available so I can use it in other files.
+
+    /* This array holds the relative URL to the image used
+     * for that particular row of the game level.
+     */
+    var rowImages = [
+            'images/water-block.png',   // Top row is water
+            'images/stone-block.png',   // Row 1 of 3 of stone
+            'images/stone-block.png',   // Row 2 of 3 of stone
+            'images/stone-block.png',   // Row 3 of 3 of stone
+            'images/grass-block.png',   // Row 1 of 2 of grass
+            'images/grass-block.png'    // Row 2 of 2 of grass
+        ],
+        numRows = 6,
+        numCols = 5,
+        numStoneRows,
+        numWaterRows;
+
+    var countSpecialRows = function() {
+        // counts the amount of water & stone rows
+        var amount_of_stone_rows = 0;
+        var amount_of_water_rows = 0;
+        for (i = 0; i < rowImages.length; i++) {
+            if (rowImages[i].includes("stone") === true) {
+                amount_of_stone_rows++;
+            } else if (rowImages[i].includes("water") === true) {
+                amount_of_water_rows++;
+            };
+        };
+        numStoneRows = amount_of_stone_rows;
+        numWaterRows = amount_of_water_rows;
+    };
+    countSpecialRows();
+
+    /* Caching the images that will be used to draw the canvas.
+     * Once they are done loading, the engine is initiated with the
+     * init function in callback.
+     */
+    Resources.load([
+        'images/stone-block.png',
+        'images/water-block.png',
+        'images/grass-block.png',
+        'images/enemy-bug.png',
+        'images/char-boy.png'
+    ]);
+
+    Resources.onReady(init);
+
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -69,8 +121,6 @@ var Engine = (function(global) {
         main();
     }
 
-    init();
-
     /* This function is called by main (our game loop) and itself calls all
      * of the functions which may need to update entity's data. Based on how
      * you implement your collision detection (when two entities occupy the
@@ -96,49 +146,19 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        player.update();
+        //player.update();
     }
 
-    /* This function initially draws the "game level", it will then call
-     * the renderEntities function. Remember, this function is called every
-     * game tick (or loop of the game engine) because that's how games work -
-     * they are flipbooks creating the illusion of animation but in reality
-     * they are just drawing the entire screen over and over.
-     */
     function render() {
-        /* This array holds the relative URL to the image used
-         * for that particular row of the game level.
+        /* This function initially draws the "game level", it will then call
+         * the renderEntities function. Remember, this function is called every
+         * game tick (or loop of the game engine) because that's how games work -
+         * they are flipbooks creating the illusion of animation but in reality
+         * they are just drawing the entire screen over and over.
          */
-        var rowImages = [
-                'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
-            ],
-            numRows = 6,
-            numCols = 5,
-            numStoneRows = function() {
-                var amount_of_stone_rows = 0;
-                for (i = 0; i < rowImages.length; i++) {
-                    if (rowImages[i].includes("stone") === true) {
-                        amount_of_stone_rows++;
-                    }
-                }
-                return amount_of_stone_rows;
-            },
-            numWaterRows = function() {
-                var amount_of_water_rows = 0;
-                for (i = 0; i < rowImages.length; i++) {
-                    if (rowImages[i].includes("water") === true) {
-                        amount_of_water_rows++;
-                    }
-                }
-                return amount_of_water_rows;
-            },
-            cellHeight = canvas.height % numRows,
-            cellWidth = canvas.width % numCols,
+
+        var cellHeight = canvas.height / numRows,
+            cellWidth = canvas.width / numRows,
             row, col;
 
         /* Loop through the number of rows and columns we've defined above
@@ -147,6 +167,7 @@ var Engine = (function(global) {
          */
         for (row = 0; row < numRows; row++) {
             for (col = 0; col < numCols; col++) {
+                console.log(row,col,Resources.get(rowImages[row]), cellHeight, cellWidth);
                 /* The drawImage function of the canvas' context element
                  * requires 3 parameters: the image to draw, the x coordinate
                  * to start drawing and the y coordinate to start drawing.
@@ -155,8 +176,8 @@ var Engine = (function(global) {
                  * we're using them over and over.
                  */
                 ctx.drawImage(Resources.get(rowImages[row]), col * cellHeight, row * cellWidth);
-            }
-        }
+            };
+        };
 
         renderEntities();
     }
@@ -173,7 +194,7 @@ var Engine = (function(global) {
             enemy.render();
         });
 
-        player.render();
+        // player.render();
     }
 
     /* This function does nothing but it could have been a good place to
@@ -184,22 +205,10 @@ var Engine = (function(global) {
         // noop
     }
 
-    /* Go ahead and load all of the images we know we're going to need to
-     * draw our game level. Then set init as the callback method, so that when
-     * all of these images are properly loaded our game will start.
-     */
-    Resources.load([
-        'images/stone-block.png',
-        'images/water-block.png',
-        'images/grass-block.png',
-        'images/enemy-bug.png',
-        'images/char-boy.png'
-    ]);
-    Resources.onReady(init);
-
     /* Assign the canvas' context object to the global variable (the window
      * object when run in a browser) so that developers can use it more easily
      * from within their app.js files.
      */
     global.ctx = ctx;
 })(this);
+
