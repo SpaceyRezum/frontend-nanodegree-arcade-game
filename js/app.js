@@ -65,11 +65,24 @@ var Player = function() {
     this.y = (numRows - 2) * cellHeight;
 };
 
-/* Player.prototype.update = function() {
-    Player.prototype.handleInput = function(keypressed) {
-        if (keypressed === "up")
+Player.prototype.update = function() {
+    // place for checkColision();
+};
+
+Player.prototype.handleInput = function(keypressed) {
+    if (keypressed === "up") {
+        this.y -= drawnSquareHeight;
     };
-};*/
+    if (keypressed === "down") {
+        this.y += drawnSquareHeight;
+    };
+    if (keypressed === "right") {
+        this.x += cellWidth;
+    };
+    if (keypressed === "left") {
+        this.x -= cellWidth;
+    };
+};
 
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
@@ -94,5 +107,5 @@ document.addEventListener('keyup', function(e) {
         40: 'down'
     };
 
-    // player.handleInput(allowedKeys[e.keyCode]);
+    player.handleInput(allowedKeys[e.keyCode]);
 });
