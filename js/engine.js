@@ -31,8 +31,6 @@ var Engine = (function(global) {
     canvas.height = 606;
     doc.body.appendChild(canvas);
 
-    // I decided to make the information about rows & colums
-    // globally available so I can use it in other files.
 
     /* This array holds the relative URL to the image used
      * for that particular row of the game level.
@@ -44,11 +42,21 @@ var Engine = (function(global) {
             'images/stone-block.png',   // Row 3 of 3 of stone
             'images/grass-block.png',   // Row 1 of 2 of grass
             'images/grass-block.png'    // Row 2 of 2 of grass
-        ],
-        numRows = 6,
-        numCols = 5,
-        numStoneRows,
-        numWaterRows;
+        ];
+
+    /* I chose to make the information about rows & colums
+     * globally available so I can use it in other files.
+     */
+
+    numRows = 6;
+    numCols = 5;
+    numStoneRows = 0;
+    numWaterRows = 0;
+    cellHeight = canvas.height / numRows;
+    // drawnSquareHeight represents the "walkable" bloc of a row image
+    drawnSquareHeight = 84;
+    // cellWidth is pegged to drawnSquareHeight to get that square tile effect
+    cellWidth = drawnSquareHeight;
 
     var countSpecialRows = function() {
         // counts the amount of water & stone rows
@@ -64,7 +72,9 @@ var Engine = (function(global) {
         numStoneRows = amount_of_stone_rows;
         numWaterRows = amount_of_water_rows;
     };
+
     countSpecialRows();
+    console.log("Engine: numStoneRows,numWaterRows,cellHeight,cellWidth: ",numStoneRows,numWaterRows,cellHeight,cellWidth);
 
     /* Caching the images that will be used to draw the canvas.
      * Once they are done loading, the engine is initiated with the
@@ -97,7 +107,7 @@ var Engine = (function(global) {
         /* Call our update/render functions, pass along the time delta to
          * our update function since it may be used for smooth animation.
          */
-        update(dt);
+        // update(dt);
         render();
 
         /* Set our lastTime variable which is used to determine the time delta
@@ -116,6 +126,7 @@ var Engine = (function(global) {
      * game loop.
      */
     function init() {
+        console.log("game has been initialized");
         reset();
         lastTime = Date.now();
         main();
@@ -157,9 +168,7 @@ var Engine = (function(global) {
          * they are just drawing the entire screen over and over.
          */
 
-        var cellHeight = canvas.height / numRows,
-            cellWidth = canvas.width / numRows,
-            row, col;
+        var row, col;
 
         /* Loop through the number of rows and columns we've defined above
          * and, using the rowImages array, draw the correct image for that
@@ -167,7 +176,6 @@ var Engine = (function(global) {
          */
         for (row = 0; row < numRows; row++) {
             for (col = 0; col < numCols; col++) {
-                console.log(row,col,Resources.get(rowImages[row]), cellHeight, cellWidth);
                 /* The drawImage function of the canvas' context element
                  * requires 3 parameters: the image to draw, the x coordinate
                  * to start drawing and the y coordinate to start drawing.
@@ -194,7 +202,7 @@ var Engine = (function(global) {
             enemy.render();
         });
 
-        // player.render();
+        player.render();
     }
 
     /* This function does nothing but it could have been a good place to
