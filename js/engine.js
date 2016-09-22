@@ -53,10 +53,9 @@ var Engine = (function(global) {
     numStoneRows = 0;
     numWaterRows = 0;
     cellHeight = canvas.height / numRows;
+    cellWidth = canvas.width / numCols;
     // drawnSquareHeight represents the "walkable" bloc of a row image
     drawnSquareHeight = 84;
-    // cellWidth is pegged to drawnSquareHeight to get that square tile effect
-    cellWidth = drawnSquareHeight;
 
     var countSpecialRows = function() {
         // counts the amount of water & stone rows
@@ -74,8 +73,6 @@ var Engine = (function(global) {
     };
 
     countSpecialRows();
-    console.log("Engine: numStoneRows,numWaterRows,cellHeight,cellWidth: ",numStoneRows,numWaterRows,cellHeight,cellWidth);
-
     /* Caching the images that will be used to draw the canvas.
      * Once they are done loading, the engine is initiated with the
      * init function in callback.
@@ -183,7 +180,7 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                ctx.drawImage(Resources.get(rowImages[row]), col * cellHeight, row * cellWidth);
+                ctx.drawImage(Resources.get(rowImages[row]), col * cellWidth, row * drawnSquareHeight);
             };
         };
 

@@ -20,10 +20,6 @@ var Enemy = function() {
     this.speed = 0;
 };
 
-Enemy.prototype.initialPosition = function() {
-
-};
-
 /* Update the enemy's position, required method for game
  * Parameter: dt, a time delta between ticks
  */
@@ -65,9 +61,8 @@ var Player = function() {
     /* Set our player's initial position using relative values so that a
      * change in canvas size would not require a lot of changes in our game.
      */
-    this.x = this.x = Math.floor(numCols / 2) * cellWidth;
-    this.y = this.y = (numRows - 1) * cellHeight;
-    console.log("Player: initial x & y: ",this.x,this.y);
+    this.x = Math.floor(numCols / 2) * cellWidth;
+    this.y = (numRows - 2) * cellHeight;
 };
 
 /* Player.prototype.update = function() {
