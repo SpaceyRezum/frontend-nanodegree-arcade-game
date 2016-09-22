@@ -97,7 +97,6 @@ Player.prototype.handleInput = function(keypressed) {
             this.x += cellWidth;
         };
     };
-    console.log("this is player.x & y: ",this.x,this.y);
 };
 
 Player.prototype.render = function() {
@@ -109,11 +108,11 @@ Player.prototype.render = function() {
  * by the difficulty level.
  */
 var addMoreEnemies = window.setInterval(function() {
+    allEnemies.push(new Enemy());
+    console.log(allEnemies.length);
     if (allEnemies.length > 4) {
         clearInterval(addMoreEnemies);
     };
-    allEnemies.push(new Enemy());
-    console.log(allEnemies.length);
 },4000);
 
 
