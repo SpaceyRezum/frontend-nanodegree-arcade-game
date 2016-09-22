@@ -56,6 +56,8 @@ var Engine = (function(global) {
     cellWidth = canvas.width / numCols;
     // drawnSquareHeight represents the "walkable" bloc of a row image
     drawnSquareHeight = 84;
+    // topWhiteSquare represents the amount of transparent pixels at the top of images
+    topWhiteSquare = 51;
 
     var countSpecialRows = function() {
         // counts the amount of water & stone rows
@@ -104,7 +106,7 @@ var Engine = (function(global) {
         /* Call our update/render functions, pass along the time delta to
          * our update function since it may be used for smooth animation.
          */
-        // update(dt);
+        update(dt);
         render();
 
         /* Set our lastTime variable which is used to determine the time delta
@@ -123,7 +125,6 @@ var Engine = (function(global) {
      * game loop.
      */
     function init() {
-        console.log("game has been initialized");
         reset();
         lastTime = Date.now();
         main();
@@ -154,7 +155,7 @@ var Engine = (function(global) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        //player.update();
+        player.update();
     }
 
     function render() {
