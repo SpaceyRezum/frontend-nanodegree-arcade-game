@@ -13,7 +13,7 @@ var Enemy = function() {
     // Randomly sets the enemy's initial position
     // topWhiteSquare (51px) represents the white space at the top.
     this.y = topWhiteSquare + (initialRow - 2) * drawnSquareHeight;
-
+    console.log("enemy y: ",this.y);
     /* Initial speed is equal to 0 and will be modified
      * when the first position update runs.
      */
@@ -29,7 +29,7 @@ Enemy.prototype.update = function(dt) {
          * the instance of the enemy just got created or if it just reached
          * the end of the canvas) and sets it randomly.
          */
-        this.speed = Math.random() * 100;
+        this.speed = (Math.random() + 1) * 100;
         // Use of dt to smoothen enemies movements
         this.x += this.speed * dt;
     } else {
@@ -43,10 +43,12 @@ Enemy.prototype.update = function(dt) {
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
-    /* Add the option no to render if the enemy is off the canvas.
-     * If this is true, the x coordinate and the speed are reset to 0.
+    /* Add the option not to render if the enemy is off the canvas.
+     * If this is true, the x and y coordinates and the speed are reset to 0.
      */
     if (this.x > (numCols*cellWidth)) {
+        var initialRow = numWaterRows + (Math.floor((Math.random() * (numStoneRows)) + 1))
+        this.y = topWhiteSquare + (initialRow - 2) * drawnSquareHeight;
         this.x = 0;
         this.speed = 0;
     } else {
@@ -67,7 +69,7 @@ var Player = function() {
 };
 
 Player.prototype.update = function() {
-    // place for checkColision();
+
 };
 
 /* This method gets the input from the keyup event listener and transforms it
@@ -77,12 +79,14 @@ Player.prototype.update = function() {
 Player.prototype.handleInput = function(keypressed) {
     if (keypressed === "up") {
         this.y -= drawnSquareHeight;
+        console.log("player y: ",this.y);
         if (this.y < topWhiteSquare) {
             this.y = PlayerInitY;
             this.x = PlayerInitX;
         };
     } else if (keypressed === "down") {
         this.y += drawnSquareHeight;
+        console.log("player y: ",this.y);
         if (this.y > (numRows - 2) * cellHeight) {
             this.y -= drawnSquareHeight;
         };
@@ -103,18 +107,33 @@ Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+
 /* These lines will set a time interval of 4s to generate
  * new enemies until their number reaches the max amount set
  * by the difficulty level.
  */
 var addMoreEnemies = window.setInterval(function() {
     allEnemies.push(new Enemy());
-    console.log(allEnemies.length);
     if (allEnemies.length > 4) {
         clearInterval(addMoreEnemies);
     };
-},4000);
+},2000);
 
+
+// Check for collisions between player and enemies
+var checkCollisions = function() {
+    for (var i = 0; i < allEnemies.length; i++) {
+        if (player.y === (allEnemies[i].y + 17)) {
+        // After some testing, I found out that exactly 17 pixels were separating
+        // enemies.y and player.y coordinates on each and every row.
+            if (player.x > (allEnemies[i].x - cellWidth*2/3) && player.x < (allEnemies[i].x + cellWidth*2/3)) {
+                console.log("enemy x & player x: ",allEnemies[i].x, player.x);
+                player.x = PlayerInitX;
+                player.y = PlayerInitY;
+            };
+        };
+    };
+};
 
 
 // Now instantiate your objects. The game starts with one enemy.
