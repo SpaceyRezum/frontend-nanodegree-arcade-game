@@ -43,7 +43,7 @@ Enemy.prototype.update = function(dt) {
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
-    /* Add the option not to render if the enemy is off the canvas.
+    /* Add the option no to render if the enemy is off the canvas.
      * If this is true, the x and y coordinates and the speed are reset to 0.
      */
     if (this.x > (numCols*cellWidth)) {
@@ -112,13 +112,15 @@ Player.prototype.render = function() {
  * new enemies until their number reaches the max amount set
  * by the difficulty level.
  */
-var addMoreEnemies = window.setInterval(function() {
-    allEnemies.push(new Enemy());
-    if (allEnemies.length > 4) {
-        clearInterval(addMoreEnemies);
-    };
-},2000);
-
+var addMoreEnemies = function() {
+    window.setInterval(function() {
+        if (allEnemies.length > (enemiesByLevel - 1)) {
+            clearInterval(addMoreEnemies);
+        } else {
+            allEnemies.push(new Enemy());
+        };
+    },2000);
+}
 
 // Check for collisions between player and enemies
 var checkCollisions = function() {
@@ -153,6 +155,5 @@ document.addEventListener('keyup', function(e) {
         39: 'right',
         40: 'down'
     };
-
     player.handleInput(allowedKeys[e.keyCode]);
 });

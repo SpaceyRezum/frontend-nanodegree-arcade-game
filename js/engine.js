@@ -12,6 +12,30 @@
  * This engine is available globally via the Engine variable and it also makes
  * the canvas' context (ctx) object globally available to make writing app.js
  * a little simpler to work with.
+
+
+
+
+TO-DO:
+
+order:
+ImageLoad
+Init
+    (CheckLevel)
+    Reset = (drawfield, welcome-menu)
+    SpacebarCheck
+    Main
+        Update
+        Render
+
+1. Find a way to align the intro text and find a better color.
+2. Integrate the level variable in the drawfield function (so that the field would draw the tiles according to the order set by the level)
+3. Write on the top of the screen the level the player is at.
+4. Create the boat instance that the player can only take if their x coordinate is the same (maybe + or - 10px)
+5. Maybe integrate keys that the player needs to pick-up before reaching the winning point!
+6. Maybe, in order to draw the enemies on a field with sequels of water and stone, use an array to store the row number everytime the word stone is found.
+
+
  */
 
 
@@ -35,14 +59,16 @@ var Engine = (function(global) {
     /* This array holds the relative URL to the image used
      * for that particular row of the game level.
      */
-    var rowImages = [
-            'images/water-block.png',   // Top row is water
+    var waterBlock = 'images/water-block.png',
+        stoneBlock = 'images/stone-block.png',
+        grassBlock = 'images/grass-block.png';
+/*            'images/water-block.png',   // Top row is water
             'images/stone-block.png',   // Row 1 of 3 of stone
             'images/stone-block.png',   // Row 2 of 3 of stone
             'images/stone-block.png',   // Row 3 of 3 of stone
             'images/grass-block.png',   // Row 1 of 2 of grass
             'images/grass-block.png'    // Row 2 of 2 of grass
-        ];
+        ];*/
 
     /* I chose to make the information about rows & colums
      * globally available so I can use it in other files.
@@ -58,23 +84,28 @@ var Engine = (function(global) {
     drawnSquareHeight = 84;
     // topWhiteSquare represents the amount of transparent pixels at the top of images
     topWhiteSquare = 51;
+    enemiesByLevel = 5;
+    currentLevel = 1;
+    levelRows = [
+        [waterBlock,stoneBlock,stoneBlock,stoneBlock,grassBlock,grassBlock]
+    ];
 
     var countSpecialRows = function() {
         // counts the amount of water & stone rows
         var amount_of_stone_rows = 0;
         var amount_of_water_rows = 0;
-        for (i = 0; i < rowImages.length; i++) {
-            if (rowImages[i].includes("stone") === true) {
+        for (i = 0; i < levelRows[currentLevel - 1].length; i++) {
+            if (levelRows[currentLevel - 1][i].includes("stone") === true) {
                 amount_of_stone_rows++;
-            } else if (rowImages[i].includes("water") === true) {
+            } else if (levelRows[currentLevel - 1][i].includes("water") === true) {
                 amount_of_water_rows++;
             };
         };
         numStoneRows = amount_of_stone_rows;
         numWaterRows = amount_of_water_rows;
     };
-
     countSpecialRows();
+
     /* Caching the images that will be used to draw the canvas.
      * Once they are done loading, the engine is initiated with the
      * init function in callback.
@@ -87,7 +118,7 @@ var Engine = (function(global) {
         'images/char-boy.png'
     ]);
 
-    Resources.onReady(init);
+    Resources.onReady(init)
 
 
     /* This function serves as the kickoff point for the game loop itself
@@ -127,7 +158,13 @@ var Engine = (function(global) {
     function init() {
         reset();
         lastTime = Date.now();
-        main();
+        document.addEventListener('keyup', function(e) {
+            if (e.keyCode === 32) {
+                addMoreEnemies();
+                main();
+                //(checkEndLevel)
+            };
+        });
     }
 
     /* This function is called by main (our game loop) and itself calls all
@@ -159,18 +196,15 @@ var Engine = (function(global) {
     }
 
     function render() {
-        /* This function initially draws the "game level", it will then call
-         * the renderEntities function. Remember, this function is called every
-         * game tick (or loop of the game engine) because that's how games work -
-         * they are flipbooks creating the illusion of animation but in reality
-         * they are just drawing the entire screen over and over.
-         */
+        drawField();
+        renderEntities();
+    }
 
+    function drawField() {
         var row, col;
-
         /* Loop through the number of rows and columns we've defined above
-         * and, using the rowImages array, draw the correct image for that
-         * portion of the "grid"
+         * and, using the levelRows arrays (which change depending on the level),
+         * draw the correct image for that portion of the "grid"
          */
         for (row = 0; row < numRows; row++) {
             for (col = 0; col < numCols; col++) {
@@ -181,17 +215,11 @@ var Engine = (function(global) {
                  * so that we get the benefits of caching these images, since
                  * we're using them over and over.
                  */
-                ctx.drawImage(Resources.get(rowImages[row]), col * cellWidth, row * drawnSquareHeight);
+                ctx.drawImage(Resources.get(levelRows[currentLevel - 1][row]), col * cellWidth, row * drawnSquareHeight);
             };
         };
-
-        renderEntities();
     }
 
-    /* This function is called by the render function and is called on each game
-     * tick. Its purpose is to then call the render functions you have defined
-     * on your enemy and player entities within app.js
-     */
     function renderEntities() {
         /* Loop through all of the objects within the allEnemies array and call
          * the render function you have defined.
@@ -203,12 +231,23 @@ var Engine = (function(global) {
         player.render();
     }
 
-    /* This function does nothing but it could have been a good place to
-     * handle game reset states - maybe a new game menu or a game over screen
-     * those sorts of things. It's only called once by the init() method.
-     */
     function reset() {
-        // noop
+        drawField();
+        showWelcomeMenu();
+    }
+
+    function showWelcomeMenu() {
+        ctx.font="30px Impact";
+        ctx.fillStyle = "black";
+        if (currentLevel === 1) {
+            ctx.fillText("Welcome to Alex's Frogger",100,250);
+            ctx.fillText("Hit the Space Bar to Start",100,300);
+            ctx.fillText("Have Fun!",100,350);
+        } else {
+            ctx.fillText("Get Ready for Next Level!",100,250);
+            ctx.fillText("Hit the Space Bar to Start",100,300);
+            ctx.fillText("Have Fun!",100,350);
+        };
     }
 
     /* Assign the canvas' context object to the global variable (the window
