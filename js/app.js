@@ -38,7 +38,6 @@ var Enemy = function() {
     var initialRow = indexStoneRows[Math.floor(Math.random() * (2))];
     // topWhiteSquare (51px) represents the white space at the top.
     this.y = topWhiteSquare + (initialRow - 1) * drawnSquareHeight;
-    console.log("enemy y: ",this.y);
     /* Initial speed is equal to 0 and will be modified
      * when the first position update runs.
      */
@@ -93,6 +92,10 @@ var Player = function() {
 };
 
 Player.prototype.update = function() {
+    if (this.x > (numCols) * cellWidth) {
+        this.x = 0;
+    };
+    console.log(this.x);
     // insert life up and down functions
     // insert winning conditions
     // insert level up functions
@@ -105,14 +108,12 @@ Player.prototype.update = function() {
 Player.prototype.handleInput = function(keypressed) {
     if (keypressed === "up") {
         this.y -= drawnSquareHeight;
-        console.log("player y: ",this.y);
         if (this.y < topWhiteSquare) {
             this.y = PlayerInitY;
             this.x = PlayerInitX;
         };
     } else if (keypressed === "down") {
         this.y += drawnSquareHeight;
-        console.log("player y: ",this.y);
         if (this.y > (numRows - 2) * cellHeight) {
             this.y -= drawnSquareHeight;
         };
@@ -150,10 +151,8 @@ var addMoreEnemies = function() {
 }
 
 var addBoats = function() {
-    console.log(indexWaterRows);
     for (var i = 0; i < indexWaterRows.length + 1; i++) {
         allBoats.push(new Boat());
-        console.log(indexWaterRows);
     };
 }
 
@@ -162,14 +161,22 @@ var checkCollisions = function() {
     for (var i = 0; i < allEnemies.length; i++) {
         if (player.y === (allEnemies[i].y + 17)) {
         // After some testing, I found out that exactly 17 pixels were separating
-        // enemies.y and player.y coordinates on each and every row.
+        // enemies.y and player.y coordinates on each and every row (same goes for boats).
             if (player.x > (allEnemies[i].x - cellWidth*2/3) && player.x < (allEnemies[i].x + cellWidth*2/3)) {
                 player.x = PlayerInitX;
                 player.y = PlayerInitY;
             };
         };
     };
-    // check colision with boats
+    for (var i = 0; i < allBoats.length; i++) {
+        if (player.y === (allBoats[i].y + 17)) {
+            if (player.x > (allBoats[i].x - cellWidth*3/4) && player.x < (allBoats[i].x + cellWidth*3/4)) {
+                player.x = allBoats[i].x;
+            } else {
+                player.y += drawnSquareHeight;
+            };
+        };
+    };
 };
 
 
