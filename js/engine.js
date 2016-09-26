@@ -30,9 +30,9 @@ Init
 
 1. Find a way to align the intro text and find a better color.
 2. Write on the top of the screen the level the player is at.
-3. Create the boat instance that the player can only take if their x coordinate is the same (maybe + or - 10px)
+3. Integrate a "level won" platform at the top of the screen, that will make you go up a level
 4. Maybe integrate keys that the player needs to pick-up before reaching the winning point!
-5. Maybe, in order to draw the enemies on a field with sequels of water and stone, use an array to store the row number everytime the word stone is found.
+5. Integrate a certain number of life and levels to the game.
 
 
  */
@@ -55,7 +55,7 @@ var Engine = (function(global) {
     doc.body.appendChild(canvas);
 
 
-    /* This array holds the relative URL to the image used
+    /* These variables hold the relative URL to the image used
      * for that particular row of the game level.
      */
     var waterBlock = 'images/water-block.png',
@@ -63,7 +63,7 @@ var Engine = (function(global) {
         grassBlock = 'images/grass-block.png';
 
     /* I chose to make the information about rows & colums
-     * globally available so I can use it in other files.
+     * globally available so developers can use it in other files.
      */
     numRows = 6;
     numCols = 5;
@@ -76,12 +76,17 @@ var Engine = (function(global) {
     // topWhiteSquare represents the amount of transparent pixels at the top of images
     topWhiteSquare = 51;
     currentLevel = 1;
+    // This array holds the composition of different levels
     levelRows = [
-        [grassBlock,waterBlock,stoneBlock,stoneBlock,waterBlock,grassBlock]
+        [grassBlock,stoneBlock,stoneBlock,stoneBlock,grassBlock,grassBlock],
+        [grassBlock,waterBlock,stoneBlock,stoneBlock,grassBlock,grassBlock],
+        [grassBlock,waterBlock,stoneBlock,stoneBlock,waterBlock,grassBlock],
+        [grassBlock,waterBlock,stoneBlock,waterBlock,stoneBlock,grassBlock]
     ];
 
+
+    // Locates the water & stone rows and saves their index number
     var countSpecialRows = function() {
-        // Locates the water & stone rows and saves their index number
         for (i = 0; i < levelRows[currentLevel - 1].length; i++) {
             if (levelRows[currentLevel - 1][i].includes("stone") === true) {
                 indexStoneRows.push(i);
@@ -134,7 +139,6 @@ var Engine = (function(global) {
                 addBoats();
                 addMoreEnemies();
                 main();
-                //(checkEndLevel)
             };
         });
     }
@@ -193,6 +197,8 @@ var Engine = (function(global) {
                 ctx.drawImage(Resources.get(levelRows[currentLevel - 1][row]), col * cellWidth, row * drawnSquareHeight);
             };
         };
+        // Adds the winning tile the player must reach to pass the level
+        ctx.drawImage(Resources.get(winningTile.sprite), winningTile.x, winningTile.y);
     }
 
     function renderEntities() {
@@ -216,16 +222,17 @@ var Engine = (function(global) {
     }
 
     function showWelcomeMenu() {
-        ctx.font="30px Impact";
+        ctx.font = "30px Impact";
         ctx.fillStyle = "black";
+        ctx.textAlign = "center";
         if (currentLevel === 1) {
-            ctx.fillText("Welcome to Alex's Frogger",100,250);
-            ctx.fillText("Hit the Space Bar to Start",100,300);
-            ctx.fillText("Have Fun!",100,350);
+            ctx.fillText("Welcome to Alex's Frogger",canvas.width/2,250);
+            ctx.fillText("Hit the Space Bar to Start",canvas.width/2,300);
+            ctx.fillText("Have Fun!",canvas.width/2,350);
         } else {
-            ctx.fillText("Get Ready for Next Level!",100,250);
-            ctx.fillText("Hit the Space Bar to Start",100,300);
-            ctx.fillText("Have Fun!",100,350);
+            ctx.fillText("Get Ready for Next Level!",canvas.width/2,250);
+            ctx.fillText("Hit the Space Bar to Start",canvas.width/2,300);
+            ctx.fillText("Have Fun!",canvas.width/2,350);
         };
     }
 
@@ -239,7 +246,8 @@ var Engine = (function(global) {
         'images/grass-block.png',
         'images/enemy-bug.png',
         'images/char-boy.png',
-        'images/little-boat.png'
+        'images/little-boat.png',
+        'images/winning-tile.png'
     ]);
 
     Resources.onReady(init)

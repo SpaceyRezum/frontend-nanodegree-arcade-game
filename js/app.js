@@ -2,7 +2,7 @@
 var Boat = function() {
     this.sprite = "images/little-boat.png";
     // initiate boats randomly on the water rows
-    this.x = Math.random() * 500;
+    this.x = Math.random() * 600;
     // create a boatSpeed variable to attach to player's position once on a boat
     var boatSpeed = 100;
     this.speed = boatSpeed;
@@ -22,6 +22,7 @@ Boat.prototype.render = function() {
 Boat.prototype.update = function(dt) {
     this.x += this.speed * dt;
 }
+
 
 
 // Rewrite the enemy class using the Boat Class. Boats are simpler version of enemies.
@@ -65,9 +66,9 @@ Enemy.prototype.update = function(dt) {
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
-    // console.log(Math.floor(indexStoneRows[Math.floor(Math.random() * (4))]));
     /* Add the option no to render if the enemy is off the canvas.
-     * If this is true, the x and y coordinates and the speed are reset to 0.
+     * If this is true, the x and y coordinates and the speed are reset
+     * to initial values.
      */
     if (this.x > (numCols*cellWidth)) {
         var initialRow = indexStoneRows[Math.floor(Math.random() * (indexStoneRows.length))];
@@ -78,6 +79,7 @@ Enemy.prototype.render = function() {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     };
 };
+
 
 
 // Our player class
@@ -93,10 +95,12 @@ var Player = function() {
 };
 
 Player.prototype.update = function() {
+    console.log("player x & y", this.x, this.y);
     // Next lines allow the player to surf with the boat off-canvas
     if (this.x > (numCols) * cellWidth) {
         this.x = 0;
     };
+    // Winning condition
     // insert life up and down functions
     // insert winning conditions
     // insert level up functions
@@ -109,9 +113,8 @@ Player.prototype.update = function() {
 Player.prototype.handleInput = function(keypressed) {
     if (keypressed === "up") {
         this.y -= drawnSquareHeight;
-        if (this.y < topWhiteSquare) {
-            this.y = PlayerInitY;
-            this.x = PlayerInitX;
+        if (this.y < (-1)*drawnSquareHeight) {
+            this.y += drawnSquareHeight;
         };
     } else if (keypressed === "down") {
         this.y += drawnSquareHeight;
@@ -136,6 +139,16 @@ Player.prototype.render = function() {
 };
 
 
+
+// New simple class: a winning tile the player must reach
+var WinningTile = function() {
+    this.sprite = 'images/winning-tile.png';
+    this.x = Math.floor(numCols / 2) * cellWidth;
+    this.y = (-30);
+}
+
+
+
 /* These lines will set a time interval of 4s to generate
  * new enemies until their number reaches the max amount set
  * by the difficulty level.
@@ -148,19 +161,22 @@ var addMoreEnemies = function() {
             clearInterval(addMoreEnemies);
         } else {
             allEnemies.push(new Enemy());
-            console.log(allEnemies);
         };
-    },2000);
+    },1000);
 }
 
+// Function to add a boat per water row
 var addBoats = function() {
     for (var i = 0; i < indexWaterRows.length + 1; i++) {
         allBoats.push(new Boat());
     };
 }
 
+
+
 // Check for collisions between player and enemies & player and boats
 var checkCollisions = function() {
+    // Collisions with enemies
     for (var i = 0; i < allEnemies.length; i++) {
         if (player.y === (allEnemies[i].y + 17)) {
         // After some testing, I found out that exactly 17 pixels were separating
@@ -171,6 +187,7 @@ var checkCollisions = function() {
             };
         };
     };
+    // Player & Boats interactions
     for (var i = 0; i < allBoats.length; i++) {
         if (player.y === (allBoats[i].y + 17)) {
             if (player.x > (allBoats[i].x - cellWidth*5/6) && player.x < (allBoats[i].x + cellWidth*5/6)) {
@@ -186,7 +203,8 @@ var checkCollisions = function() {
 // Instantiate a player and creates the array for instantiating enemies and boats
 var player = new Player(),
     allEnemies = [],
-    allBoats = [];
+    allBoats = [],
+    winningTile = new WinningTile();
 
 
 /* This listens for key presses and sends the keys to your
