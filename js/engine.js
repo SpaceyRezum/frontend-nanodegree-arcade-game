@@ -29,11 +29,10 @@ Init
         Render
 
 1. Find a way to align the intro text and find a better color.
-2. Integrate the level variable in the drawfield function (so that the field would draw the tiles according to the order set by the level)
-3. Write on the top of the screen the level the player is at.
-4. Create the boat instance that the player can only take if their x coordinate is the same (maybe + or - 10px)
-5. Maybe integrate keys that the player needs to pick-up before reaching the winning point!
-6. Maybe, in order to draw the enemies on a field with sequels of water and stone, use an array to store the row number everytime the word stone is found.
+2. Write on the top of the screen the level the player is at.
+3. Create the boat instance that the player can only take if their x coordinate is the same (maybe + or - 10px)
+4. Maybe integrate keys that the player needs to pick-up before reaching the winning point!
+5. Maybe, in order to draw the enemies on a field with sequels of water and stone, use an array to store the row number everytime the word stone is found.
 
 
  */
@@ -62,22 +61,14 @@ var Engine = (function(global) {
     var waterBlock = 'images/water-block.png',
         stoneBlock = 'images/stone-block.png',
         grassBlock = 'images/grass-block.png';
-/*            'images/water-block.png',   // Top row is water
-            'images/stone-block.png',   // Row 1 of 3 of stone
-            'images/stone-block.png',   // Row 2 of 3 of stone
-            'images/stone-block.png',   // Row 3 of 3 of stone
-            'images/grass-block.png',   // Row 1 of 2 of grass
-            'images/grass-block.png'    // Row 2 of 2 of grass
-        ];*/
 
     /* I chose to make the information about rows & colums
      * globally available so I can use it in other files.
      */
-
     numRows = 6;
     numCols = 5;
-    numStoneRows = 0;
-    numWaterRows = 0;
+    indexStoneRows = [];
+    indexWaterRows = [];
     cellHeight = canvas.height / numRows;
     cellWidth = canvas.width / numCols;
     // drawnSquareHeight represents the "walkable" bloc of a row image
@@ -87,39 +78,20 @@ var Engine = (function(global) {
     enemiesByLevel = 5;
     currentLevel = 1;
     levelRows = [
-        [waterBlock,stoneBlock,stoneBlock,stoneBlock,grassBlock,grassBlock]
+        [grassBlock,waterBlock,stoneBlock,stoneBlock,waterBlock,grassBlock]
     ];
 
     var countSpecialRows = function() {
-        // counts the amount of water & stone rows
-        var amount_of_stone_rows = 0;
-        var amount_of_water_rows = 0;
+        // Locates the water & stone rows and saves their index number
         for (i = 0; i < levelRows[currentLevel - 1].length; i++) {
             if (levelRows[currentLevel - 1][i].includes("stone") === true) {
-                amount_of_stone_rows++;
+                indexStoneRows.push(i);
             } else if (levelRows[currentLevel - 1][i].includes("water") === true) {
-                amount_of_water_rows++;
+                indexWaterRows.push(i);
             };
         };
-        numStoneRows = amount_of_stone_rows;
-        numWaterRows = amount_of_water_rows;
     };
     countSpecialRows();
-
-    /* Caching the images that will be used to draw the canvas.
-     * Once they are done loading, the engine is initiated with the
-     * init function in callback.
-     */
-    Resources.load([
-        'images/stone-block.png',
-        'images/water-block.png',
-        'images/grass-block.png',
-        'images/enemy-bug.png',
-        'images/char-boy.png'
-    ]);
-
-    Resources.onReady(init)
-
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -160,6 +132,7 @@ var Engine = (function(global) {
         lastTime = Date.now();
         document.addEventListener('keyup', function(e) {
             if (e.keyCode === 32) {
+                addBoats();
                 addMoreEnemies();
                 main();
                 //(checkEndLevel)
@@ -191,6 +164,9 @@ var Engine = (function(global) {
     function updateEntities(dt) {
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
+        });
+        allBoats.forEach(function(boat) {
+            boat.update(dt);
         });
         player.update();
     }
@@ -228,6 +204,10 @@ var Engine = (function(global) {
             enemy.render();
         });
 
+        allBoats.forEach(function(boat) {
+            boat.render();
+        });
+
         player.render();
     }
 
@@ -249,6 +229,21 @@ var Engine = (function(global) {
             ctx.fillText("Have Fun!",100,350);
         };
     }
+
+    /* Caching the images that will be used to draw the canvas.
+     * Once they are done loading, the engine is initiated with the
+     * init function in callback.
+     */
+    Resources.load([
+        'images/stone-block.png',
+        'images/water-block.png',
+        'images/grass-block.png',
+        'images/enemy-bug.png',
+        'images/char-boy.png',
+        'images/little-boat.png'
+    ]);
+
+    Resources.onReady(init)
 
     /* Assign the canvas' context object to the global variable (the window
      * object when run in a browser) so that developers can use it more easily

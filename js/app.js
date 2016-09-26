@@ -1,18 +1,43 @@
-// Enemies our player must avoid
+// This is a new class: boats that can transport the player over the water
+var Boat = function() {
+    this.sprite = "images/little-boat.png";
+    // initiate boats randomly on the water rows
+    this.x = Math.random() * 500;
+    // create a boatSpeed variable to attach to player's position once on a boat
+    var boatSpeed = 100;
+    this.speed = boatSpeed;
+    // initiate one and only one boat per water row
+    this.y = topWhiteSquare + (indexWaterRows[indexWaterRows.length-1] - 1) * drawnSquareHeight;
+    indexWaterRows.pop();
+};
+
+Boat.prototype.render = function() {
+    if (this.x > (numCols*cellWidth)) {
+        this.x = 0;
+    } else {
+        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    };
+}
+
+Boat.prototype.update = function(dt) {
+    this.x += this.speed * dt;
+}
+
+
+// Rewrite the enemy class using the Boat Class. Boats are simpler version of enemies.
 var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
-
     this.x = 0;
     /* initialRow randomly provides us the row on which the enemy
-     * will be created. It takes into account the number of
-     * rows with water and the number of rows with stones. It then
-     * randomly picks an integer between (numWaterRows) and
-     * (numWaterRows + numStoneRows).
+     * will be created. It takes into account the index of
+     * rows with stones, then randomly picks one of them and initiate
+     * the enemy on it. The formula used to pick a random number within the array
+     * is the following Math.floor(Math.random() * (max - min +1)) + min.
+     * This assumes that the max = 3 (there won't be more than 4 stone rows) and the min = 0.
      */
-    var initialRow = numWaterRows + (Math.floor((Math.random() * (numStoneRows)) + 1));
-    // Randomly sets the enemy's initial position
+    var initialRow = indexStoneRows[Math.floor(Math.random() * (2))];
     // topWhiteSquare (51px) represents the white space at the top.
-    this.y = topWhiteSquare + (initialRow - 2) * drawnSquareHeight;
+    this.y = topWhiteSquare + (initialRow - 1) * drawnSquareHeight;
     console.log("enemy y: ",this.y);
     /* Initial speed is equal to 0 and will be modified
      * when the first position update runs.
@@ -20,9 +45,7 @@ var Enemy = function() {
     this.speed = 0;
 };
 
-/* Update the enemy's position, required method for game
- * Parameter: dt, a time delta between ticks
- */
+// Update the enemy's position
 Enemy.prototype.update = function(dt) {
     if (this.speed === 0) {
         /* Checks whether speed variable has been set already (i.e. if
@@ -47,14 +70,15 @@ Enemy.prototype.render = function() {
      * If this is true, the x and y coordinates and the speed are reset to 0.
      */
     if (this.x > (numCols*cellWidth)) {
-        var initialRow = numWaterRows + (Math.floor((Math.random() * (numStoneRows)) + 1))
-        this.y = topWhiteSquare + (initialRow - 2) * drawnSquareHeight;
+        var initialRow = indexStoneRows[Math.floor(Math.random() * (3 - 0 +1))];
+        this.y = topWhiteSquare + (initialRow - 1) * drawnSquareHeight;
         this.x = 0;
         this.speed = 0;
     } else {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     };
 };
+
 
 // Our player class
 var Player = function() {
@@ -69,12 +93,14 @@ var Player = function() {
 };
 
 Player.prototype.update = function() {
-
+    // insert life up and down functions
+    // insert winning conditions
+    // insert level up functions
 };
 
 /* This method gets the input from the keyup event listener and transforms it
- * into player moves on x and y axes. The function also restricts the player from
- * going off-canvas.
+ * into player moves on x and y axes. The function also allows the player to follow
+ * enemies and boats when going off-canvas.
  */
 Player.prototype.handleInput = function(keypressed) {
     if (keypressed === "up") {
@@ -93,12 +119,12 @@ Player.prototype.handleInput = function(keypressed) {
     } else if (keypressed === "right") {
         this.x += cellWidth;
         if (this.x > (numCols - 1) * cellWidth) {
-            this.x -= cellWidth;
+            this.x = 0;
         };
     } else if (keypressed === "left") {
         this.x -= cellWidth;
         if (this.x < 0) {
-            this.x += cellWidth;
+            this.x = ((numCols - 1) * cellWidth);
         };
     };
 };
@@ -113,6 +139,7 @@ Player.prototype.render = function() {
  * by the difficulty level.
  */
 var addMoreEnemies = function() {
+    allEnemies.push(new Enemy());
     window.setInterval(function() {
         if (allEnemies.length > (enemiesByLevel - 1)) {
             clearInterval(addMoreEnemies);
@@ -122,27 +149,34 @@ var addMoreEnemies = function() {
     },2000);
 }
 
-// Check for collisions between player and enemies
+var addBoats = function() {
+    console.log(indexWaterRows);
+    for (var i = 0; i < indexWaterRows.length + 1; i++) {
+        allBoats.push(new Boat());
+        console.log(indexWaterRows);
+    };
+}
+
+// Check for collisions between player and enemies & player and boats
 var checkCollisions = function() {
     for (var i = 0; i < allEnemies.length; i++) {
         if (player.y === (allEnemies[i].y + 17)) {
         // After some testing, I found out that exactly 17 pixels were separating
         // enemies.y and player.y coordinates on each and every row.
             if (player.x > (allEnemies[i].x - cellWidth*2/3) && player.x < (allEnemies[i].x + cellWidth*2/3)) {
-                console.log("enemy x & player x: ",allEnemies[i].x, player.x);
                 player.x = PlayerInitX;
                 player.y = PlayerInitY;
             };
         };
     };
+    // check colision with boats
 };
 
 
-// Now instantiate your objects. The game starts with one enemy.
-var allEnemies = [
-    enemy = new Enemy()
-],
-    player = new Player();
+// Instantiate a player and creates the array for instantiating enemies and boats
+var player = new Player(),
+    allEnemies = [],
+    allBoats = [];
 
 
 /* This listens for key presses and sends the keys to your
