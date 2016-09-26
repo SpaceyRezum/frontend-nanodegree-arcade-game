@@ -96,14 +96,21 @@ var Player = function() {
 
 Player.prototype.update = function() {
     console.log("player x & y", this.x, this.y);
+    console.log("winningTile x & y", winningTile.x, winningTile.y);
     // Next lines allow the player to surf with the boat off-canvas
     if (this.x > (numCols) * cellWidth) {
         this.x = 0;
     };
-    // Winning condition
+    // Next lines check whether the player has reached the winning tile
+    // if so, the currentlevel variable goes up by one and the game restarts.
+    if (this.y === (winningTile.y + 17)) {
+        if (this.x > (winningTile.x - cellWidth*2/3) && this.x < (winningTile.x + cellWidth*2/3)) {
+            currentLevel += 1;
+            // that does not work however
+            Engine.init();
+        };
+    };
     // insert life up and down functions
-    // insert winning conditions
-    // insert level up functions
 };
 
 /* This method gets the input from the keyup event listener and transforms it
@@ -144,7 +151,7 @@ Player.prototype.render = function() {
 var WinningTile = function() {
     this.sprite = 'images/winning-tile.png';
     this.x = Math.floor(numCols / 2) * cellWidth;
-    this.y = (-30);
+    this.y = (-33);
 }
 
 
