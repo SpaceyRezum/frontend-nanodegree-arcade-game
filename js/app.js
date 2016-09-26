@@ -92,10 +92,10 @@ var Player = function() {
 };
 
 Player.prototype.update = function() {
+    // Next lines allow the player to surf with the boat off-canvas
     if (this.x > (numCols) * cellWidth) {
         this.x = 0;
     };
-    console.log(this.x);
     // insert life up and down functions
     // insert winning conditions
     // insert level up functions
@@ -120,12 +120,12 @@ Player.prototype.handleInput = function(keypressed) {
     } else if (keypressed === "right") {
         this.x += cellWidth;
         if (this.x > (numCols - 1) * cellWidth) {
-            this.x = 0;
+            this.x -= cellWidth;
         };
     } else if (keypressed === "left") {
         this.x -= cellWidth;
         if (this.x < 0) {
-            this.x = ((numCols - 1) * cellWidth);
+            this.x += cellWidth;
         };
     };
 };
@@ -170,7 +170,7 @@ var checkCollisions = function() {
     };
     for (var i = 0; i < allBoats.length; i++) {
         if (player.y === (allBoats[i].y + 17)) {
-            if (player.x > (allBoats[i].x - cellWidth*3/4) && player.x < (allBoats[i].x + cellWidth*3/4)) {
+            if (player.x > (allBoats[i].x - cellWidth*5/6) && player.x < (allBoats[i].x + cellWidth*5/6)) {
                 player.x = allBoats[i].x;
             } else {
                 player.y += drawnSquareHeight;
