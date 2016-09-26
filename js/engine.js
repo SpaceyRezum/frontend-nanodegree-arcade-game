@@ -75,7 +75,6 @@ var Engine = (function(global) {
     drawnSquareHeight = 84;
     // topWhiteSquare represents the amount of transparent pixels at the top of images
     topWhiteSquare = 51;
-    enemiesByLevel = 5;
     currentLevel = 1;
     levelRows = [
         [grassBlock,waterBlock,stoneBlock,stoneBlock,waterBlock,grassBlock]

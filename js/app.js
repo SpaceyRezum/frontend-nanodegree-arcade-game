@@ -32,10 +32,10 @@ var Enemy = function() {
      * will be created. It takes into account the index of
      * rows with stones, then randomly picks one of them and initiate
      * the enemy on it. The formula used to pick a random number within the array
-     * is the following Math.floor(Math.random() * (max - min +1)) + min.
-     * This assumes that the max = 3 (there won't be more than 4 stone rows) and the min = 0.
+     * is the following Math.floor(Math.random() * (max - min)). This assumes that
+     * the max = indexStoneRows.length (max is excluded) and the min = 0 (min is included).
      */
-    var initialRow = indexStoneRows[Math.floor(Math.random() * (2))];
+    var initialRow = indexStoneRows[Math.floor(Math.random() * (indexStoneRows.length))];
     // topWhiteSquare (51px) represents the white space at the top.
     this.y = topWhiteSquare + (initialRow - 1) * drawnSquareHeight;
     /* Initial speed is equal to 0 and will be modified
@@ -65,11 +65,12 @@ Enemy.prototype.update = function(dt) {
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
+    // console.log(Math.floor(indexStoneRows[Math.floor(Math.random() * (4))]));
     /* Add the option no to render if the enemy is off the canvas.
      * If this is true, the x and y coordinates and the speed are reset to 0.
      */
     if (this.x > (numCols*cellWidth)) {
-        var initialRow = indexStoneRows[Math.floor(Math.random() * (3 - 0 +1))];
+        var initialRow = indexStoneRows[Math.floor(Math.random() * (indexStoneRows.length))];
         this.y = topWhiteSquare + (initialRow - 1) * drawnSquareHeight;
         this.x = 0;
         this.speed = 0;
@@ -142,10 +143,12 @@ Player.prototype.render = function() {
 var addMoreEnemies = function() {
     allEnemies.push(new Enemy());
     window.setInterval(function() {
-        if (allEnemies.length > (enemiesByLevel - 1)) {
+        // Restricts the total number of enemies to (number of stone rows * 2)
+        if (allEnemies.length > ((indexStoneRows.length * 2) - 1)) {
             clearInterval(addMoreEnemies);
         } else {
             allEnemies.push(new Enemy());
+            console.log(allEnemies);
         };
     },2000);
 }
