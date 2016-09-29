@@ -52,7 +52,7 @@ Enemy.prototype.update = function(dt) {
          * the instance of the enemy just got created or if it just reached
          * the end of the canvas) and sets it randomly.
          */
-        this.speed = (Math.random() + 1) * 100;
+        this.speed = (Math.random() + 1) * 50;
         // Use of dt to smoothen enemies movements
         this.x += this.speed * dt;
     } else {
@@ -95,20 +95,9 @@ var Player = function() {
 };
 
 Player.prototype.update = function() {
-    console.log("player x & y", this.x, this.y);
-    console.log("winningTile x & y", winningTile.x, winningTile.y);
     // Next lines allow the player to surf with the boat off-canvas
     if (this.x > (numCols) * cellWidth) {
         this.x = 0;
-    };
-    // Next lines check whether the player has reached the winning tile
-    // if so, the currentlevel variable goes up by one and the game restarts.
-    if (this.y === (winningTile.y + 17)) {
-        if (this.x > (winningTile.x - cellWidth*2/3) && this.x < (winningTile.x + cellWidth*2/3)) {
-            currentLevel += 1;
-            // that does not work however
-            Engine.init();
-        };
     };
     // insert life up and down functions
 };
@@ -162,14 +151,18 @@ var WinningTile = function() {
  */
 var addMoreEnemies = function() {
     allEnemies.push(new Enemy());
-    window.setInterval(function() {
+    while (allEnemies.length < indexStoneRows.length + 1) {
+        allEnemies.push(new Enemy());
+        console.log("one enemy has been added");
+    };
+    /*window.setInterval(function() {
         // Restricts the total number of enemies to (number of stone rows * 2)
         if (allEnemies.length > ((indexStoneRows.length * 2) - 1)) {
             clearInterval(addMoreEnemies);
         } else {
             allEnemies.push(new Enemy());
         };
-    },1000);
+    },1000);*/
 }
 
 // Function to add a boat per water row
@@ -206,6 +199,22 @@ var checkCollisions = function() {
     };
 };
 
+var checkWinningCondition = function() {
+    console.log("winning condition checked");
+    if (player.y === (winningTile.y + 17)) {
+        if (player.x > (winningTile.x - cellWidth*2/3) && player.x < (winningTile.x + cellWidth*2/3)) {
+            player.x = PlayerInitX;
+            player.y = PlayerInitY;
+            currentLevel += 1;
+            allEnemies = [];
+            allBoats = [];
+            countSpecialRows();
+            addMoreEnemies();
+            addBoats();
+            console.log("there is now ", allEnemies.length, " enemies & ", allBoats.length, " boats");
+        };
+    };
+}
 
 // Instantiate a player and creates the array for instantiating enemies and boats
 var player = new Player(),

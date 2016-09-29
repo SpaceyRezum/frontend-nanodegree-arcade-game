@@ -67,8 +67,6 @@ var Engine = (function(global) {
      */
     numRows = 6;
     numCols = 5;
-    indexStoneRows = [];
-    indexWaterRows = [];
     cellHeight = canvas.height / numRows;
     cellWidth = canvas.width / numCols;
     // drawnSquareHeight represents the "walkable" bloc of a row image
@@ -86,7 +84,9 @@ var Engine = (function(global) {
 
 
     // Locates the water & stone rows and saves their index number
-    var countSpecialRows = function() {
+    countSpecialRows = function() {
+        indexStoneRows = [];
+        indexWaterRows = [];
         for (i = 0; i < levelRows[currentLevel - 1].length; i++) {
             if (levelRows[currentLevel - 1][i].includes("stone") === true) {
                 indexStoneRows.push(i);
@@ -95,7 +95,6 @@ var Engine = (function(global) {
             };
         };
     };
-    countSpecialRows();
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -136,6 +135,7 @@ var Engine = (function(global) {
         lastTime = Date.now();
         document.addEventListener('keyup', function(e) {
             if (e.keyCode === 32) {
+                countSpecialRows();
                 addBoats();
                 addMoreEnemies();
                 main();
@@ -155,6 +155,9 @@ var Engine = (function(global) {
     function update(dt) {
         updateEntities(dt);
         checkCollisions();
+        checkWinningCondition();
+        // Next lines check whether the player has reached the winning tile
+        // if so, the currentlevel variable goes up by one and the game restarts.
     }
 
     /* This is called by the update function and loops through all of the
