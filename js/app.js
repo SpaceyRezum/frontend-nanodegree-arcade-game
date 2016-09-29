@@ -2,7 +2,7 @@
 var Boat = function() {
     this.sprite = "images/little-boat.png";
     // initiate boats randomly on the water rows
-    this.x = Math.random() * 600;
+    this.x = Math.random() * 400;
     // create a boatSpeed variable to attach to player's position once on a boat
     var boatSpeed = 100;
     this.speed = boatSpeed;
@@ -28,7 +28,7 @@ Boat.prototype.update = function(dt) {
 // Rewrite the enemy class using the Boat Class. Boats are simpler version of enemies.
 var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
-    this.x = 0;
+    this.x = Math.random() * 400;
     /* initialRow randomly provides us the row on which the enemy
      * will be created. It takes into account the index of
      * rows with stones, then randomly picks one of them and initiate
@@ -52,7 +52,7 @@ Enemy.prototype.update = function(dt) {
          * the instance of the enemy just got created or if it just reached
          * the end of the canvas) and sets it randomly.
          */
-        this.speed = (Math.random() + 1) * 50;
+        this.speed = (Math.random() + 1) * 75;
         // Use of dt to smoothen enemies movements
         this.x += this.speed * dt;
     } else {
