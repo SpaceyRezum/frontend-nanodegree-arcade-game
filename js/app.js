@@ -2,9 +2,9 @@
 var Boat = function() {
     this.sprite = "images/little-boat.png";
     // initiate boats randomly on the water rows
-    this.x = Math.random() * 400;
+    this.x = 150 / Math.random();
     // create a boatSpeed variable to attach to player's position once on a boat
-    var boatSpeed = 100;
+    var boatSpeed = 50;
     this.speed = boatSpeed;
     // initiate one and only one boat per water row
     this.y = topWhiteSquare + (indexWaterRows[indexWaterRows.length-1] - 1) * drawnSquareHeight;
@@ -28,7 +28,8 @@ Boat.prototype.update = function(dt) {
 // Rewrite the enemy class using the Boat Class. Boats are simpler version of enemies.
 var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
-    this.x = Math.random() * 400;
+    this.x = 150 / Math.random();
+    console.log("enemy x: ",this.x);
     /* initialRow randomly provides us the row on which the enemy
      * will be created. It takes into account the index of
      * rows with stones, then randomly picks one of them and initiate
@@ -153,7 +154,6 @@ var addMoreEnemies = function() {
     allEnemies.push(new Enemy());
     while (allEnemies.length < indexStoneRows.length + 1) {
         allEnemies.push(new Enemy());
-        console.log("one enemy has been added");
     };
     /*window.setInterval(function() {
         // Restricts the total number of enemies to (number of stone rows * 2)
@@ -200,18 +200,9 @@ var checkCollisions = function() {
 };
 
 var checkWinningCondition = function() {
-    console.log("winning condition checked");
     if (player.y === (winningTile.y + 17)) {
         if (player.x > (winningTile.x - cellWidth*2/3) && player.x < (winningTile.x + cellWidth*2/3)) {
-            player.x = PlayerInitX;
-            player.y = PlayerInitY;
-            currentLevel += 1;
-            allEnemies = [];
-            allBoats = [];
-            countSpecialRows();
-            addMoreEnemies();
-            addBoats();
-            console.log("there is now ", allEnemies.length, " enemies & ", allBoats.length, " boats");
+            return true;
         };
     };
 }

@@ -12,32 +12,7 @@
  * This engine is available globally via the Engine variable and it also makes
  * the canvas' context (ctx) object globally available to make writing app.js
  * a little simpler to work with.
-
-
-
-
-TO-DO:
-
-order:
-ImageLoad
-Init
-    (CheckLevel)
-    Reset = (drawfield, welcome-menu)
-    SpacebarCheck
-    Main
-        Update
-        Render
-
-1. Find a way to align the intro text and find a better color.
-2. Write on the top of the screen the level the player is at.
-3. Integrate a "level won" platform at the top of the screen, that will make you go up a level
-4. Maybe integrate keys that the player needs to pick-up before reaching the winning point!
-5. Integrate a certain number of life and levels to the game.
-
-
  */
-
-
 
 var Engine = (function(global) {
     /* Predefine the variables we'll be using within this scope,
@@ -53,7 +28,9 @@ var Engine = (function(global) {
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
-
+    ctx.font = "30px Impact";
+    ctx.fillStyle = "black";
+    ctx.textAlign = "center";
 
     /* These variables hold the relative URL to the image used
      * for that particular row of the game level.
@@ -120,6 +97,21 @@ var Engine = (function(global) {
          */
         lastTime = now;
 
+        // Next line check whether the player has reached the winning tile
+        // if so, the currentlevel variable goes up by one and the game restarts.
+        checkWinningCondition();
+        if (checkWinningCondition() === true) {
+            player.x = PlayerInitX;
+            player.y = PlayerInitY;
+            currentLevel += 1;
+            allEnemies = [];
+            allBoats = [];
+            countSpecialRows();
+            addMoreEnemies();
+            addBoats();
+            console.log("level up!");
+        };
+
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
          */
@@ -133,14 +125,14 @@ var Engine = (function(global) {
     function init() {
         reset();
         lastTime = Date.now();
-        document.addEventListener('keyup', function(e) {
+        document.onkeyup = function(e) {
             if (e.keyCode === 32) {
                 countSpecialRows();
                 addBoats();
                 addMoreEnemies();
                 main();
             };
-        });
+        };
     }
 
     /* This function is called by main (our game loop) and itself calls all
@@ -155,9 +147,6 @@ var Engine = (function(global) {
     function update(dt) {
         updateEntities(dt);
         checkCollisions();
-        checkWinningCondition();
-        // Next lines check whether the player has reached the winning tile
-        // if so, the currentlevel variable goes up by one and the game restarts.
     }
 
     /* This is called by the update function and loops through all of the
@@ -202,6 +191,13 @@ var Engine = (function(global) {
         };
         // Adds the winning tile the player must reach to pass the level
         ctx.drawImage(Resources.get(winningTile.sprite), winningTile.x, winningTile.y);
+        // draw a white rectangle to erase the previous level
+        ctx.fillStyle = "white";
+        ctx.fillRect(0,0,100,30);
+        // writes the current level at the top left corner
+        ctx.fillStyle = "black";
+        ctx.textAlign = "left";
+        ctx.fillText("Level: " + currentLevel,15,30);
     }
 
     function renderEntities() {
@@ -225,18 +221,10 @@ var Engine = (function(global) {
     }
 
     function showWelcomeMenu() {
-        ctx.font = "30px Impact";
-        ctx.fillStyle = "black";
         ctx.textAlign = "center";
-        if (currentLevel === 1) {
-            ctx.fillText("Welcome to Alex's Frogger",canvas.width/2,250);
-            ctx.fillText("Hit the Space Bar to Start",canvas.width/2,300);
-            ctx.fillText("Have Fun!",canvas.width/2,350);
-        } else {
-            ctx.fillText("Get Ready for Next Level!",canvas.width/2,250);
-            ctx.fillText("Hit the Space Bar to Start",canvas.width/2,300);
-            ctx.fillText("Have Fun!",canvas.width/2,350);
-        };
+        ctx.fillText("Welcome to Alex's Frogger",canvas.width/2,250);
+        ctx.fillText("Hit the Space Bar to Start",canvas.width/2,300);
+        ctx.fillText("Have Fun!",canvas.width/2,350);
     }
 
     /* Caching the images that will be used to draw the canvas.
