@@ -29,7 +29,6 @@ Boat.prototype.update = function(dt) {
 var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
     this.x = 150 / Math.random();
-    console.log("enemy x: ",this.x);
     /* initialRow randomly provides us the row on which the enemy
      * will be created. It takes into account the index of
      * rows with stones, then randomly picks one of them and initiate
@@ -100,7 +99,6 @@ Player.prototype.update = function() {
     if (this.x > (numCols) * cellWidth) {
         this.x = 0;
     };
-    // insert life up and down functions
 };
 
 /* This method gets the input from the keyup event listener and transforms it
@@ -155,14 +153,6 @@ var addMoreEnemies = function() {
     while (allEnemies.length < indexStoneRows.length + 1) {
         allEnemies.push(new Enemy());
     };
-    /*window.setInterval(function() {
-        // Restricts the total number of enemies to (number of stone rows * 2)
-        if (allEnemies.length > ((indexStoneRows.length * 2) - 1)) {
-            clearInterval(addMoreEnemies);
-        } else {
-            allEnemies.push(new Enemy());
-        };
-    },1000);*/
 }
 
 // Function to add a boat per water row

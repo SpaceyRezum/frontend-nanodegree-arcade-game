@@ -50,7 +50,7 @@ var Engine = (function(global) {
     drawnSquareHeight = 84;
     // topWhiteSquare represents the amount of transparent pixels at the top of images
     topWhiteSquare = 51;
-    currentLevel = 1;
+    currentLevel = 4;
     // This array holds the composition of different levels
     levelRows = [
         [grassBlock,stoneBlock,stoneBlock,stoneBlock,grassBlock,grassBlock],
@@ -97,25 +97,30 @@ var Engine = (function(global) {
          */
         lastTime = now;
 
+        /* Use the browser's requestAnimationFrame function to call this
+         * function again as soon as the browser is able to draw another frame.
+         */
+        frame = win.requestAnimationFrame(main);
+
         // Next line check whether the player has reached the winning tile
         // if so, the currentlevel variable goes up by one and the game restarts.
-        checkWinningCondition();
-        if (checkWinningCondition() === true) {
+        if (checkWinningCondition()) {
+            win.cancelAnimationFrame(frame);
             player.x = PlayerInitX;
             player.y = PlayerInitY;
             currentLevel += 1;
             allEnemies = [];
             allBoats = [];
-            countSpecialRows();
-            addMoreEnemies();
-            addBoats();
-            console.log("level up!");
+            if (currentLevel > levelRows.length) {
+                // checks game final end conditions and restarts
+                // the game when player presses spacebar.
+                drawField(1);
+                showWelcomeMenu();
+                currentLevel = 1;
+            } else {
+                reset();
+            };
         };
-
-        /* Use the browser's requestAnimationFrame function to call this
-         * function again as soon as the browser is able to draw another frame.
-         */
-        win.requestAnimationFrame(main);
     }
 
     /* This function does some initial setup that should only occur once,
@@ -125,14 +130,14 @@ var Engine = (function(global) {
     function init() {
         reset();
         lastTime = Date.now();
-        document.onkeyup = function(e) {
+        document.addEventListener("keyup", function(e) {
             if (e.keyCode === 32) {
                 countSpecialRows();
                 addBoats();
-                addMoreEnemies();
+                //addMoreEnemies();
                 main();
             };
-        };
+        });
     }
 
     /* This function is called by main (our game loop) and itself calls all
@@ -167,11 +172,11 @@ var Engine = (function(global) {
     }
 
     function render() {
-        drawField();
+        drawField(currentLevel);
         renderEntities();
     }
 
-    function drawField() {
+    function drawField(currentLevel) {
         var row, col;
         /* Loop through the number of rows and columns we've defined above
          * and, using the levelRows arrays (which change depending on the level),
@@ -216,15 +221,31 @@ var Engine = (function(global) {
     }
 
     function reset() {
-        drawField();
+        // Simply draws a field with no player or enemies and
+        // shows the appropriate welcome message
+        drawField(currentLevel);
         showWelcomeMenu();
     }
 
     function showWelcomeMenu() {
-        ctx.textAlign = "center";
-        ctx.fillText("Welcome to Alex's Frogger",canvas.width/2,250);
-        ctx.fillText("Hit the Space Bar to Start",canvas.width/2,300);
-        ctx.fillText("Have Fun!",canvas.width/2,350);
+        if (currentLevel === 1) {
+            ctx.textAlign = "center";
+            ctx.fillText("Welcome to Alex's Frogger-a-like!",canvas.width/2,250);
+            ctx.fillText("Hit the spacebar to start.",canvas.width/2,300);
+            ctx.fillText("Have Fun!",canvas.width/2,350);
+        } else if (currentLevel < levelRows.length + 1) {
+            ctx.textAlign = "center";
+            ctx.fillText("Congratulation for reaching level " + currentLevel,canvas.width/2,250);
+            ctx.fillText("Hit the spacebar to start next level.",canvas.width/2,300);
+            ctx.fillText("Have Fun!",canvas.width/2,350);
+        } else {
+            currentLevel = 1;
+            ctx.textAlign = "center";
+            ctx.fillText("Congratulation for finishing the game!",canvas.width/2,250);
+            ctx.fillText("Send me your suggestions for",canvas.width/2,300);
+            ctx.fillText("improvement to info@alexis-bellet.com",canvas.width/2,350);
+            ctx.fillText("Thanks a lot!",canvas.width/2,400);
+        }
     }
 
     /* Caching the images that will be used to draw the canvas.
