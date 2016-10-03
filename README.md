@@ -1,6 +1,23 @@
-frontend-nanodegree-arcade-game
-===============================
+# Frogger-like Arcade Game
 
-Students should use this [rubric](https://review.udacity.com/#!/projects/2696458597/rubric) for self-checking their submission. Make sure the functions you write are **object-oriented** - either class functions (like Player and Enemy) or class prototype functions such as Enemy.prototype.checkCollisions, and that the keyword 'this' is used appropriately within your class and class prototype functions to refer to the object the function is called upon. Also be sure that the **readme.md** file is updated with your instructions on both how to 1. Run and 2. Play your arcade game.
+This project was accomplished during Udacity's Front End Developer Nanodegree Program. Feel free to send me your suggestion for improvements to info@alexis-bellet.com.
 
-For detailed instructions on how to get started, check out this [guide](https://docs.google.com/document/d/1v01aScPjSWCCWQLIpFqvg3-vXLH2e8_SZQKC8jNO0Dc/pub?embedded=true).
+## How to run the game
+
+The game is currently not available online. In order to run it, you should first download the current repository and open index.html in your browser. Updates on the game public availability will soon be posted.
+
+## How to play
+
+Frogger games are pretty simple. The goal is to reach the "win" tile at the top of the screen. To move, use the directional arrows located on your keyboard, :arrow_up: will make your player go up one row, same logic for :arrow_down:. :arrow_left: & :arrow_right: will make your player move sideways.
+
+Note: it is not possible to go off-canvas, you will be block at the bottom, top, left or right edge of the field.
+
+## Enemies & boats
+
+So far, the only other interactive entities available in the game are enemies and boats. In order to reach the winning tile, you should avoid enemies and use boats to "surf" your way over water blocks.
+
+## Ways to tweak the game
+
+The game is currently only 4 levels. Each level presents a new set of difficulty. If you are interested in a harder game, increase the amount of enemies by tweaking the "addMoreEnemies" function in app.js. Suggestions could also help increase the amount of levels by adding new features. Don't hesitate to get in touch!
+
+Have fun!
