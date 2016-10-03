@@ -95,9 +95,10 @@ var Player = function() {
 };
 
 Player.prototype.update = function() {
-    // Next lines allow the player to surf with the boat off-canvas
-    if (this.x > (numCols) * cellWidth) {
-        this.x = 0;
+    // corrects player position when surfing on the boat to the edge
+    // of the screen and prevents player from surfing off-canvas.
+    if (this.x > (numCols - 1) * cellWidth) {
+        this.x = (numCols - 1) * cellWidth;
     };
 };
 
@@ -118,7 +119,7 @@ Player.prototype.handleInput = function(keypressed) {
         };
     } else if (keypressed === "right") {
         this.x += cellWidth;
-        if (this.x > (numCols - 1) * cellWidth) {
+        if (this.x > (numCols) * cellWidth) {
             this.x -= cellWidth;
         };
     } else if (keypressed === "left") {
@@ -150,7 +151,7 @@ var WinningTile = function() {
  */
 var addMoreEnemies = function() {
     allEnemies.push(new Enemy());
-    while (allEnemies.length < indexStoneRows.length + 1) {
+    while (allEnemies.length < indexStoneRows.length) {
         allEnemies.push(new Enemy());
     };
 }

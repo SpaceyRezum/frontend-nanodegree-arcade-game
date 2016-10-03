@@ -50,7 +50,7 @@ var Engine = (function(global) {
     drawnSquareHeight = 84;
     // topWhiteSquare represents the amount of transparent pixels at the top of images
     topWhiteSquare = 51;
-    currentLevel = 4;
+    currentLevel = 1;
     // This array holds the composition of different levels
     levelRows = [
         [grassBlock,stoneBlock,stoneBlock,stoneBlock,grassBlock,grassBlock],
@@ -134,7 +134,7 @@ var Engine = (function(global) {
             if (e.keyCode === 32) {
                 countSpecialRows();
                 addBoats();
-                //addMoreEnemies();
+                addMoreEnemies();
                 main();
             };
         });
