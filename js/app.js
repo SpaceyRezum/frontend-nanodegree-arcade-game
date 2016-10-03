@@ -1,59 +1,55 @@
-// This is a new class: boats that can transport the player over the water
+// A boat class. Boats can transport the player over water blocks
 var Boat = function() {
     this.sprite = "images/little-boat.png";
-    // initiate boats randomly on the water rows
+    // Initiates boats randomly on the water rows
     this.x = 150 / Math.random();
-    // create a boatSpeed variable to attach to player's position once on a boat
+    // Creates a boatSpeed variable to attach to player's position once on a boat
     var boatSpeed = 50;
     this.speed = boatSpeed;
-    // initiate one and only one boat per water row
+    // initiate one and only one boat per row of water blocks
     this.y = topWhiteSquare + (indexWaterRows[indexWaterRows.length-1] - 1) * drawnSquareHeight;
     indexWaterRows.pop();
 };
 
 Boat.prototype.render = function() {
-    if (this.x > (numCols*cellWidth)) {
-        this.x = 0;
-    } else {
-        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    };
-}
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
 
 Boat.prototype.update = function(dt) {
     this.x += this.speed * dt;
-}
+    // Allows the boat to surf back to the left-hand side of the canvas
+    if (this.x > (numCols*cellWidth)) {
+        this.x = 0
+    };
+};
 
 
 
-// Rewrite the enemy class using the Boat Class. Boats are simpler version of enemies.
 var Enemy = function() {
     this.sprite = 'images/enemy-bug.png';
-    this.x = 150 / Math.random();
-    /* initialRow randomly provides us the row on which the enemy
-     * will be created. It takes into account the index of
-     * rows with stones, then randomly picks one of them and initiate
-     * the enemy on it. The formula used to pick a random number within the array
-     * is the following Math.floor(Math.random() * (max - min)). This assumes that
-     * the max = indexStoneRows.length (max is excluded) and the min = 0 (min is included).
+    /* initialRow randomly provides us the row on which the enemy will be created.
+     * It takes into account the index of rows with stones, then randomly picks
+     * one of them and initiates the enemy on it. The formula used to pick a random
+     * number within the array is the following: Math.floor(Math.random() * (max - min))
+     * where max(excluded) = indexStoneRows.length, and min(included) = 0.
      */
     var initialRow = indexStoneRows[Math.floor(Math.random() * (indexStoneRows.length))];
     // topWhiteSquare (51px) represents the white space at the top.
     this.y = topWhiteSquare + (initialRow - 1) * drawnSquareHeight;
-    /* Initial speed is equal to 0 and will be modified
-     * when the first position update runs.
-     */
+    this.x = 150 / Math.random();
+    // Initial speed is 0 and will be modified when the first position update runs
     this.speed = 0;
 };
 
-// Update the enemy's position
+// Update the enemy's position and speed
 Enemy.prototype.update = function(dt) {
     if (this.speed === 0) {
-        /* Checks whether speed variable has been set already (i.e. if
-         * the instance of the enemy just got created or if it just reached
-         * the end of the canvas) and sets it randomly.
+        /* Checks whether speed variable has been set already (i.e. if the
+         * instance of the enemy class just got created or if it reached the
+         * end of the canvas) and sets it randomly.
          */
         this.speed = (Math.random() + 1) * 75;
-        // Use of dt to smoothen enemies movements
+        // Use of dt to smoothen enemy movements
         this.x += this.speed * dt;
     } else {
         /* this line assumes that the instance's speed has already
@@ -62,36 +58,35 @@ Enemy.prototype.update = function(dt) {
          */
         this.x += this.speed * dt;
     };
-};
 
-// Draw the enemy on the screen, required method for game
-Enemy.prototype.render = function() {
-    /* Add the option no to render if the enemy is off the canvas.
-     * If this is true, the x and y coordinates and the speed are reset
-     * to initial values.
+    /* Add the option not to render if the enemy is off-canvas. If this condition
+     * is true, the x and y coordinates and the speed are reset to initial values.
      */
     if (this.x > (numCols*cellWidth)) {
         var initialRow = indexStoneRows[Math.floor(Math.random() * (indexStoneRows.length))];
         this.y = topWhiteSquare + (initialRow - 1) * drawnSquareHeight;
         this.x = 0;
         this.speed = 0;
-    } else {
-        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     };
+};
+
+// Draw enemies on screen
+Enemy.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
 
 
-// Our player class
+// The player class
 var Player = function() {
     this.sprite = 'images/char-boy.png';
-    /* Set our player's initial position using relative values so that a
+    /* Sets our player's initial position using relative values so that a
      * change in canvas size would not require a lot of changes in our game.
      */
-    PlayerInitX = Math.floor(numCols / 2) * cellWidth;
-    PlayerInitY = (numRows - 2) * cellHeight;
-    this.x = PlayerInitX;
-    this.y = PlayerInitY;
+    playerInitX = Math.floor(numCols / 2) * cellWidth;
+    playerInitY = (numRows - 2) * cellHeight;
+    this.x = playerInitX;
+    this.y = playerInitY;
 };
 
 Player.prototype.update = function() {
@@ -173,12 +168,12 @@ var checkCollisions = function() {
         // After some testing, I found out that exactly 17 pixels were separating
         // enemies.y and player.y coordinates on each and every row (same goes for boats).
             if (player.x > (allEnemies[i].x - cellWidth*2/3) && player.x < (allEnemies[i].x + cellWidth*2/3)) {
-                player.x = PlayerInitX;
-                player.y = PlayerInitY;
+                player.x = playerInitX;
+                player.y = playerInitY;
             };
         };
     };
-    // Player & Boats interactions
+    // Player & boats interactions
     for (var i = 0; i < allBoats.length; i++) {
         if (player.y === (allBoats[i].y + 17)) {
             if (player.x > (allBoats[i].x - cellWidth*5/6) && player.x < (allBoats[i].x + cellWidth*5/6)) {

@@ -1,19 +1,12 @@
 /* Engine.js
  * This file provides the game loop functionality (update entities and render),
  * draws the initial game board on the screen, and then calls the update and
- * render methods on your player and enemy objects (defined in your app.js).
- *
- * A game engine works by drawing the entire game screen over and over, kind of
- * like a flipbook you may have created as a kid. When your player moves across
- * the screen, it may look like just that image/character is moving or being
- * drawn but that is not the case. What's really happening is the entire "scene"
- * is being drawn over and over, presenting the illusion of animation.
+ * render methods on your player and enemy objects (defined in app.js).
  *
  * This engine is available globally via the Engine variable and it also makes
  * the canvas' context (ctx) object globally available to make writing app.js
  * a little simpler to work with.
  */
-
 var Engine = (function(global) {
     /* Predefine the variables we'll be using within this scope,
      * create the canvas element, grab the 2D context for that canvas
@@ -28,6 +21,8 @@ var Engine = (function(global) {
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
+
+    // Set some basic context text drawing styles
     ctx.font = "30px Impact";
     ctx.fillStyle = "black";
     ctx.textAlign = "center";
@@ -53,15 +48,15 @@ var Engine = (function(global) {
     currentLevel = 1;
     // This array holds the composition of different levels
     levelRows = [
-        [grassBlock,stoneBlock,stoneBlock,stoneBlock,grassBlock,grassBlock],
-        [grassBlock,waterBlock,stoneBlock,stoneBlock,grassBlock,grassBlock],
-        [grassBlock,waterBlock,stoneBlock,stoneBlock,waterBlock,grassBlock],
-        [grassBlock,waterBlock,stoneBlock,waterBlock,stoneBlock,grassBlock]
+        [grassBlock, stoneBlock, stoneBlock, stoneBlock, grassBlock, grassBlock],
+        [grassBlock, waterBlock, stoneBlock, stoneBlock, grassBlock, grassBlock],
+        [grassBlock, waterBlock, stoneBlock, stoneBlock, waterBlock, grassBlock],
+        [grassBlock, waterBlock, stoneBlock, waterBlock, stoneBlock, grassBlock]
     ];
 
 
-    // Locates the water & stone rows and saves their index number
-    countSpecialRows = function() {
+    // Locates the water & stone rows and saves their index number.
+    function countSpecialRows() {
         indexStoneRows = [];
         indexWaterRows = [];
         for (i = 0; i < levelRows[currentLevel - 1].length; i++) {
@@ -71,7 +66,7 @@ var Engine = (function(global) {
                 indexWaterRows.push(i);
             };
         };
-    };
+    }
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -99,21 +94,23 @@ var Engine = (function(global) {
 
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
+         * An ID is given to the request so that we can cancel it later.
          */
         frame = win.requestAnimationFrame(main);
 
-        // Next line check whether the player has reached the winning tile
-        // if so, the currentlevel variable goes up by one and the game restarts.
+        /* Next lines check whether the player has reached the winning tile and
+         * if so, the currentlevel variable goes up by one and the game restarts.
+         */
         if (checkWinningCondition()) {
             win.cancelAnimationFrame(frame);
-            player.x = PlayerInitX;
-            player.y = PlayerInitY;
+            player.x = playerInitX;
+            player.y = playerInitY;
             currentLevel += 1;
             allEnemies = [];
             allBoats = [];
+            // Before reseting the game, checks game end conditions and restarts
+            // the game all over when player presses spacebar.
             if (currentLevel > levelRows.length) {
-                // checks game final end conditions and restarts
-                // the game when player presses spacebar.
                 drawField(1);
                 showWelcomeMenu();
                 currentLevel = 1;
@@ -131,6 +128,7 @@ var Engine = (function(global) {
         reset();
         lastTime = Date.now();
         document.addEventListener("keyup", function(e) {
+            // Activates the game when spacebar is hit.
             if (e.keyCode === 32) {
                 countSpecialRows();
                 addBoats();
@@ -140,14 +138,9 @@ var Engine = (function(global) {
         });
     }
 
-    /* This function is called by main (our game loop) and itself calls all
-     * of the functions which may need to update entity's data. Based on how
-     * you implement your collision detection (when two entities occupy the
-     * same space, for instance when your character should die), you may find
-     * the need to add an additional function call here. For now, we've left
-     * it commented out - you may or may not want to implement this
-     * functionality this way (you could just implement collision detection
-     * on the entities themselves within your app.js file).
+    /* This function is called by main() and itself calls all
+     * the functions which may need to update the various entities' data.
+     * It also checks for player-with-enemy and player-with-boat collisions.
      */
     function update(dt) {
         updateEntities(dt);
@@ -155,11 +148,9 @@ var Engine = (function(global) {
     }
 
     /* This is called by the update function and loops through all of the
-     * objects within your allEnemies array as defined in app.js and calls
-     * their update() methods. It will then call the update function for your
-     * player object. These update methods should focus purely on updating
-     * the data/properties related to the object. Do your drawing in your
-     * render methods.
+     * objects within allEnemies and allBoats arrays as defined in app.js and calls
+     * their update() methods. It will then call the update function for the
+     * player object.
      */
     function updateEntities(dt) {
         allEnemies.forEach(function(enemy) {
@@ -171,6 +162,9 @@ var Engine = (function(global) {
         player.update();
     }
 
+    /* Once the data for all entities has been updated, the game renders the field
+     * and entities accordingly.
+     */
     function render() {
         drawField(currentLevel);
         renderEntities();
@@ -194,15 +188,18 @@ var Engine = (function(global) {
                 ctx.drawImage(Resources.get(levelRows[currentLevel - 1][row]), col * cellWidth, row * drawnSquareHeight);
             };
         };
+
         // Adds the winning tile the player must reach to pass the level
         ctx.drawImage(Resources.get(winningTile.sprite), winningTile.x, winningTile.y);
-        // draw a white rectangle to erase the previous level
+
+        // draw a white rectangle to cover the previous level
         ctx.fillStyle = "white";
-        ctx.fillRect(0,0,100,30);
+        ctx.fillRect(0, 0, 150, 30);
+
         // writes the current level at the top left corner
         ctx.fillStyle = "black";
         ctx.textAlign = "left";
-        ctx.fillText("Level: " + currentLevel,15,30);
+        ctx.fillText("Level: " + currentLevel, 15, 30);
     }
 
     function renderEntities() {
@@ -216,7 +213,6 @@ var Engine = (function(global) {
         allBoats.forEach(function(boat) {
             boat.render();
         });
-
         player.render();
     }
 
@@ -230,21 +226,23 @@ var Engine = (function(global) {
     function showWelcomeMenu() {
         if (currentLevel === 1) {
             ctx.textAlign = "center";
-            ctx.fillText("Welcome to Alex's Frogger-a-like!",canvas.width/2,250);
-            ctx.fillText("Hit the spacebar to start.",canvas.width/2,300);
-            ctx.fillText("Have Fun!",canvas.width/2,350);
+            ctx.fillText("Welcome to Alex's Frogger-a-like!", canvas.width / 2, 250);
+            ctx.fillText("Hit the spacebar to start.", canvas.width / 2, 300);
+            ctx.fillText("Have Fun!", canvas.width / 2, 350);
         } else if (currentLevel < levelRows.length + 1) {
             ctx.textAlign = "center";
-            ctx.fillText("Congratulation for reaching level " + currentLevel,canvas.width/2,250);
-            ctx.fillText("Hit the spacebar to start next level.",canvas.width/2,300);
-            ctx.fillText("Have Fun!",canvas.width/2,350);
+            ctx.fillText("Congratulation for reaching level " + currentLevel, canvas.width / 2, 250);
+            ctx.fillText("Hit the spacebar to start next level.", canvas.width / 2, 300);
+            ctx.fillText("Have Fun!", canvas.width / 2, 350);
         } else {
+            // if currentLevel is higher than the number of levels set, it is reset to 1 and
+            // a game-end message is shown.
             currentLevel = 1;
             ctx.textAlign = "center";
-            ctx.fillText("Congratulation for finishing the game!",canvas.width/2,250);
-            ctx.fillText("Send me your suggestions for",canvas.width/2,300);
-            ctx.fillText("improvement to info@alexis-bellet.com",canvas.width/2,350);
-            ctx.fillText("Thanks a lot!",canvas.width/2,400);
+            ctx.fillText("Congratulation for finishing the game!", canvas.width / 2, 250);
+            ctx.fillText("Send me your suggestions for", canvas.width / 2, 300);
+            ctx.fillText("improvement to info@alexis-bellet.com", canvas.width / 2, 350);
+            ctx.fillText("Thanks a lot!", canvas.width / 2, 400);
         }
     }
 
@@ -262,7 +260,7 @@ var Engine = (function(global) {
         'images/winning-tile.png'
     ]);
 
-    Resources.onReady(init)
+    Resources.onReady(init);
 
     /* Assign the canvas' context object to the global variable (the window
      * object when run in a browser) so that developers can use it more easily
@@ -270,4 +268,3 @@ var Engine = (function(global) {
      */
     global.ctx = ctx;
 })(this);
-
