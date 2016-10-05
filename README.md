@@ -4,7 +4,7 @@ This project was accomplished during Udacity's Front End Developer Nanodegree Pr
 
 ## How to run the game
 
-The game is currently not available online. In order to run it, you should first download the current repository and open index.html in your browser. Updates on the game public availability will soon be posted.
+The game is available online at the following address https://spaceyrezum.github.io/arcade-game/. Feel free to check it out.
 
 ## How to play
 
