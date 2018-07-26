@@ -2,10 +2,6 @@
 
 This project was accomplished during Udacity's Front End Developer Nanodegree Program. Feel free to send me your suggestion for improvements to info@alexis-bellet.com.
 
-## How to run the game
-
-The game is available online at the following address https://spaceyrezum.github.io/arcade-game/. Feel free to check it out.
-
 ## How to play
 
 Frogger games are pretty simple. The goal is to reach the "win" tile at the top of the screen. To move, use the directional arrows located on your keyboard, :arrow_up: will make your player go up one row, same logic for :arrow_down:. :arrow_left: & :arrow_right: will make your player move sideways.
